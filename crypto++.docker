@@ -1,0 +1,13 @@
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get -y install git mingw-w64 make
+
+RUN cd / && git clone "https://github.com/weidai11/cryptopp.git"
+
+ENV TARGET=i686-w64-mingw32 \
+	MAKE_OPTS=-j3
+VOLUME /output
+
+CMD cd /cryptopp && git pull && CXX=$TARGET-g++ RANLIB=$TARGET-ranlib AR=$TARGET-ar LDLIBS=-lws2_32 \
+	make -f GNUmakefile-cross $MAKE_OPTS libcryptopp.a \
+	&& /bin/cp -f libcryptopp.a /output/libcryptopp.a
